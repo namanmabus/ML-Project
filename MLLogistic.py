@@ -6,7 +6,7 @@ Created on Thu Dec  3 23:41:45 2015
 """
 
 import scipy.io
-from sklearn import linear_model,grid_search,decomposition
+from sklearn import svm,grid_search,decomposition
 from sklearn.pipeline import Pipeline
 import numpy as np
 from sklearn import preprocessing
@@ -20,15 +20,18 @@ train_label=(np.array(train_label)).ravel();
 train=np.array(train);
 test=np.array(test);
 
-logistic = linear_model.LogisticRegression()
+svc=svm.SVC()
 pca = decomposition.PCA()
-pipe = Pipeline(steps=[('pca', pca), ('logistic', logistic)])
+pipe = Pipeline(steps=[('pca', pca), ('svc', svc)])
 
 scale1 = preprocessing.StandardScaler().fit(train)
 train_scaled=scale1.transform(train)
 test_scaled=scale1.transform(test)
 
-param_grid = [{'logistic__penalty': ['l1','l2'],'logistic__C':[0.001,0.01,0.1,1,10,100], 'pca__n_components':[20,25,35,40,45,50,70] }]
+param_grid = [ 
+  {'svc__C': [0.01,0.001,0.1,1,10], 'svc__kernel': ['linear'],'pca__n_components':[20,25,35,40,45,50,70]},
+  {'svc__C': [0.01, 0.1,1,10,0.001], 'gamma': [0.01,0.05,0.1,0.005,1,10], 'svc__kernel': ['rbf'],'pca__n_components':[20,25,35,40,45,50,70]},
+{'svc__C': [0.01, 0.1, 1, 10], 'svc__epsilon': [1, 0.5, 0.1, 0.05], 'svc__degree' :[2, 3, 4], 'svc__kernel': ['poly'],'pca__n_components':[20,25,35,40,45,50,70]}]
 print('Start') 
 #svr = linear_model.LogisticRegression()
 svrsearch= grid_search.GridSearchCV(pipe,param_grid,cv=10,n_jobs=10)
